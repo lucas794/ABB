@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "abb.h"
+#include "pila.h"
 
 struct _nodo
 {
@@ -21,8 +22,9 @@ struct abb
 
 struct abb_iter
 {
-	abb_t* actual;
+	pila_t* pila_inorder;
 };
+
 /* establecemos que f_comparacion devuelve 1 si es mayor
  * y -1 si el dato es menor */
 
@@ -59,6 +61,9 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
 		
 		tmp_arbolito->vagon->clave = clave;
 		tmp_arbolito->vagon->dato = dato;
+		
+		tmp_arbolito->rama_izq = NULL;
+		tmp_arbolito->rama_der = NULL;
 	}
 	else if( !arbol->cant_elementos ) /* primer elemento que agregamos?*/
 	{
@@ -139,6 +144,18 @@ void *abb_borrar(abb_t *arbol, const char *clave)
 			// tiene los 2 hijos, cagué como un campeón
 			// lo dejo para mas adelante porque tengo que pensarlo
 			// deberia reemplazarlo por el dato mas grande del arbol izquierdo?
+			abb_t* anterior = arbol->rama_izq;
+			const char* dato_tmp;
+			while( anterior->rama_der != NULL )
+				anterior = anterior->rama_der;
+			
+			dato_tmp = anterior->vagon->clave;
+			
+			abb_borrar(arbol->rama_izq, dato_tmp);
+			
+			arbol->vagon->dato = dato_tmp;
+			
+			return dato;
 		}
 	}
 }
@@ -206,30 +223,60 @@ A   F I   Q
 
 // el iterador debe hacer este proceso.
 //AEFHIKQ	
+// PODES USAR EL METODO PILA IMPLEMENTADO POR LOS PROFES EN CLASE
 
-abb_iter_t *abb_iter_in_crear(const abb_t *arbol /*meepa que no es const acá*/)
+abb_iter_t *abb_iter_in_crear(const abb_t *arbol)
 {
 	abb_iter_t* iterador = malloc( sizeof(abb_iter_t) );
 	
 	if( !iterador )
 		return NULL;
 		
-	iterador->actual = arbol;
+	iterador->pila_inorder = pila_crear();
 	
-	if( !iterador->actual )
+	if( !iterador->pila_inorder )
+	{
+		free(iterador);
 		return NULL;
+	}
+	
+	pila_apilar(iterador->pila_inorder, arbol->vagon);
+	
+	abb_t* tmp = arbol->rama_izq;
+	
+	/*apilamos todos los izquierdos*/
+	while( tmp )
+	{
+		pila_apilar(iterador->pila_inorder, tmp);
 		
-	while( iterador->actual->rama_izq != NULL ) // empezamos desde el de mas a la izquierda
-		iterador->actual = iterador->actual->rama_izq;
-		
+		tmp = tmp->rama_izq;
+	}
+			
 	return iterador;
 }
-
+bool abb_iter_in_avanzar(abb_iter_t *iter)
+{
+	/* condiciones */
+	
+	abb_t* desapilado = pila_desapilar(iter->pila_inorder);
+	
+	pila_apilar(iter->pila_inorder, desapilado->rama_der);
+	
+	abb_t* tmp = desapilado->rama_izq;
+	
+	while( tmp )
+	{
+		pila_apilar(iter->pila_inorder, tmp);
+		tmp = tmp->rama_izq;
+	}
+	
+	/* mas condiciones */
+}
 const char *abb_iter_in_ver_actual(const abb_iter_t *iter)
 {
-	if( 1 ) /* abb_iter_in_al_final vá pero no está escrita. */
+	if( /*abb_iter_in_al_final(iter)*/ 1 || pila_esta_vacia(iter->pila_inorder) ) 
 		return NULL;
 	
-	return iterador->actual->vagon->clave;
+	return pila_ver_tope(iter->pila_inorder);
 }
 	
