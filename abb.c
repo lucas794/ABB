@@ -120,7 +120,6 @@ void *abb_borrar(abb_t *arbol, const char *clave)
 			}
 			free(arbol->vagon);
 			free(arbol);
-			return dato;
 		}
 		else if( (!arbol->rama_izq && arbol->rama_der) || (arbol->rama_izq && !arbol->rama_der) )
 		{
@@ -138,6 +137,7 @@ void *abb_borrar(abb_t *arbol, const char *clave)
 			free(arbol);
 			
 			arbol = arbol_temporal;
+			
 		}
 		else
 		{
@@ -150,13 +150,13 @@ void *abb_borrar(abb_t *arbol, const char *clave)
 				anterior = anterior->rama_der;
 			
 			dato_tmp = anterior->vagon->clave;
+			dato = anterior->vagon->dato;
 			
 			abb_borrar(arbol->rama_izq, dato_tmp);
 			
 			arbol->vagon->dato = dato_tmp;
-			
-			return dato;
 		}
+		return dato;
 	}
 }
 
@@ -269,7 +269,7 @@ bool abb_iter_in_avanzar(abb_iter_t *iter)
 		pila_apilar(iter->pila_inorder, tmp);
 		tmp = tmp->rama_izq;
 	}
-	
+	return true;
 	/* mas condiciones */
 }
 const char *abb_iter_in_ver_actual(const abb_iter_t *iter)
