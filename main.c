@@ -1,8 +1,7 @@
 #include "testing.h"
 #include <stdlib.h>
 #include <stdio.h>
-
-void pruebas_abb_alumno(void);
+#include "pruebas_alumnos.h"
 
 /* ******************************************************************
  *                        PROGRAMA PRINCIPAL
@@ -11,7 +10,7 @@ void pruebas_abb_alumno(void);
 int main(int argc, char *argv[])
 {
     printf("~~~ PRUEBAS ALUMNO ~~~\n");
-    pruebas_abb_alumno();
-
+    prueba_abb_vacio();
+    prueba_abb_guardar_borrar();
     return failure_count() > 0;
 }
