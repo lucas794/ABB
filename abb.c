@@ -52,7 +52,7 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato)
 	return arbol;
 }
 
-bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
+bool _abb_guardar(abb_t *arbol, const char *clave, void *dato)
 {
 	char* copia_clave;
 	if( !arbol->cant_elementos ) /* primer elemento que agregamos?*/
@@ -63,16 +63,16 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
 		arbol->cant_elementos=1;
 		return true;
 	}
+	bool nodo_creado=true;
 	int comparacion=arbol->f_comparacion(clave, arbol->raiz->clave);
 	if(comparacion==0){
 		if(arbol->f_destrucion){
 			arbol->f_destrucion(arbol->raiz->dato);
 		}
 		arbol->raiz->dato=dato;
-		return true;
+		nodo_creado=false;
 	}
-
-	if(comparacion > 0){
+	else if(comparacion > 0){
 		if(arbol->rama_izq==NULL){
 			abb_t* nuevo_hijo=abb_crear(arbol->f_comparacion,arbol->f_destrucion);
 			if(!nuevo_hijo){
@@ -85,7 +85,7 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
 			arbol->rama_izq = nuevo_hijo;
 		}
 		else{
-			abb_guardar(arbol->rama_izq,clave, dato);
+			_abb_guardar(arbol->rama_izq,clave, dato);
 		}
 
 	}
@@ -103,14 +103,19 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
 			arbol->rama_der = nuevo_hijo;
 		}
 		else{
-			abb_guardar(arbol->rama_der, clave, dato);
+			_abb_guardar(arbol->rama_der, clave, dato);
 		}
 	}
-	arbol->cant_elementos++;
-	return true;
+	if(nodo_creado){
+		arbol->cant_elementos++;
+	}
+	return nodo_creado;
 }
 
-
+bool abb_guardar(abb_t* arbol,const char* clave, void* dato){
+	_abb_guardar(arbol,clave,dato);
+	return true;
+}
 void* abb_borrar_recursivo(abb_t** arbol_p, const char* clave,pila_t* camino_recorrido){
 	abb_t* arbol = *arbol_p;
 	void *dato;
@@ -251,7 +256,18 @@ void *abb_obtener(const abb_t *arbol, const char *clave)
 
 bool abb_pertenece(const abb_t *arbol, const char *clave)
 {
-	return abb_obtener(arbol, clave) != NULL;
+	if ( !arbol || arbol->cant_elementos==0 ){
+		return false;
+	}
+	int comparacion=arbol->f_comparacion(clave, arbol->raiz->clave);
+	if( comparacion > 0 )
+		return abb_obtener(arbol->rama_izq, clave);
+	else if( comparacion< 0 )
+		return abb_obtener(arbol->rama_der, clave);
+	else
+	{
+		return true;
+	}
 }
 
 size_t abb_cantidad(abb_t *arbol)
