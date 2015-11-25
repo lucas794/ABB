@@ -85,7 +85,7 @@ bool _abb_guardar(abb_t *arbol, const char *clave, void *dato)
 			arbol->rama_izq = nuevo_hijo;
 		}
 		else{
-			_abb_guardar(arbol->rama_izq,clave, dato);
+			nodo_creado=_abb_guardar(arbol->rama_izq,clave, dato);
 		}
 
 	}
@@ -103,7 +103,7 @@ bool _abb_guardar(abb_t *arbol, const char *clave, void *dato)
 			arbol->rama_der = nuevo_hijo;
 		}
 		else{
-			_abb_guardar(arbol->rama_der, clave, dato);
+			nodo_creado=_abb_guardar(arbol->rama_der, clave, dato);
 		}
 	}
 	if(nodo_creado){
@@ -203,7 +203,7 @@ void* abb_borrar_recursivo(abb_t** arbol_p, const char* clave,pila_t* camino_rec
 		{
 			abb_t* mayor_izq_padre=arbol;
 			abb_t* mayor_izq = arbol->rama_izq;
-			while( mayor_izq->rama_der != NULL ){
+			while(mayor_izq && mayor_izq->rama_der != NULL ){
 				mayor_izq_padre=mayor_izq;
 				mayor_izq = mayor_izq->rama_der;
 			}
@@ -213,10 +213,10 @@ void* abb_borrar_recursivo(abb_t** arbol_p, const char* clave,pila_t* camino_rec
 			arbol->raiz=mayor_izq->raiz;
 			arbol->cant_elementos--;
 			if(mayor_izq_padre==arbol){
-				arbol->rama_izq=NULL;
+				arbol->rama_izq=mayor_izq->rama_izq;
 			}
 			else{
-				mayor_izq_padre->rama_der=NULL;
+				mayor_izq_padre->rama_der = mayor_izq->rama_izq;
 			}
 			free(mayor_izq);
 

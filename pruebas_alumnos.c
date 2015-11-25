@@ -90,8 +90,30 @@ void prueba_abb_guardar_borrar(void){
     }
     abb_destruir(arbol);
 }
-void prueba_modificar_valor(void){
+void probar_abb_borrar(char *orden_insercion, char *orden_borrado) {
+  abb_t *abb = abb_crear(strcmp, NULL);
+  void *dato = abb;  // O cualquier otro valor.
 
+  // Insertar cada letra como un nodo, en orden.
+  for (char *c = orden_insercion; *c; c++) {
+    char k[] = { *c, '\0' };
+    printf("Insertar \"%s\" (%s)\n", k,
+       abb_guardar(abb, k, dato) ? "ok" : "ERROR");
+  }
+
+  // Eliminar cada nodo en el orden indicado. Si no se especificó, usar el orden
+  // de inserción.
+  if (!orden_borrado)
+    orden_borrado = orden_insercion;
+
+  for (char *c = orden_borrado; *c; c++) {
+    char k[] = { *c, '\0' };
+    printf("Borrar \"%s\" (%s)\n", k,
+       abb_borrar(abb, k) == dato ? "ok" : "ERROR");
+  }
+
+  abb_destruir(abb);
+  puts("FIN\n");
 }
 bool sumar(const char* clave, void* dato, void* extra){
     int* dato_entero= dato;
@@ -174,4 +196,7 @@ void pruebas_abb_alumno(void){
     prueba_abb_guardar_borrar();
     prueba_iterador();
     prueba_volumen();
+    //probar_abb_borrar("JAHBGICFDE", NULL);  // Da OK
+    //probar_abb_borrar("JCIHBDFEAG", NULL);  // Falla
+
 }
