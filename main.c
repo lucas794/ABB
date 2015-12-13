@@ -1,8 +1,11 @@
 #include "testing.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "pruebas_alumnos.h"
 
-void pruebas_abb_alumno(void);
+
+
+
 
 /* ******************************************************************
  *                        PROGRAMA PRINCIPAL
